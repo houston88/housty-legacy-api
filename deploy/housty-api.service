@@ -1,0 +1,19 @@
+[Unit]
+Description=Housty API (Node.js 24 + in-memory node:sqlite)
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/housty-api
+Environment=NODE_ENV=production
+Environment=PORT=8080
+ExecStart=/usr/bin/node /opt/housty-api/src/index.js
+Restart=always
+RestartSec=3
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
+

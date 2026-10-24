@@ -1,0 +1,27 @@
+{
+    "name": "housty-api",
+    "version": "1.0.0",
+    "description": "Node.js 24 Express API serving historical Twitter happiness data from an in-memory node:sqlite database",
+    "main": "src/index.js",
+    "type": "module",
+    "engines": {
+        "node": ">=24.0.0",
+        "npm": ">=11.0.0"
+    },
+    "scripts": {
+        "start": "node src/index.js",
+        "dev": "node --watch src/index.js",
+        "test": "node --test test/*.test.js"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/houston88/housty-legacy-api.git"
+    },
+    "author": "Houston Harris",
+    "license": "MIT",
+    "dependencies": {
+        "cors": "^2.8.5",
+        "dotenv": "^16.4.5",
+        "express": "^5.0.0"
+    }
+}

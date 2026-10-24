@@ -1,0 +1,53 @@
+name: Deploy Housty API to Digital Ocean
+
+on:
+  push:
+    branches:
+      - master
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js 24
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          cache: 'npm'
+
+      - name: Install Dependencies & Run Tests
+        run: |
+          npm ci
+          npm test
+
+      - name: Copy API Files to Droplet via SCP
+        uses: appleboy/scp-action@v1.0.0
+        with:
+          host: ${{ secrets.DROPLET_HOST }}
+          username: ${{ secrets.DROPLET_USERNAME }}
+          key: ${{ secrets.DROPLET_SSH_KEY }}
+          source: "package.json,package-lock.json,src/**,data/**,deploy/**"
+          target: "/opt/housty-api"
+          tar: true
+          timeout: 5m
+
+      - name: Install Production Dependencies & Restart Service
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.DROPLET_HOST }}
+          username: ${{ secrets.DROPLET_USERNAME }}
+          key: ${{ secrets.DROPLET_SSH_KEY }}
+          script: |
+            cd /opt/housty-api
+            npm ci --omit=dev
+            cp deploy/housty-api.service /etc/systemd/system/housty-api.service
+            systemctl daemon-reload
+            systemctl enable housty-api
+            systemctl restart housty-api
+            systemctl status housty-api --no-pager
+
