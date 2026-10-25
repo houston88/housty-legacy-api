@@ -11,7 +11,9 @@
     "scripts": {
         "start": "node src/index.js",
         "dev": "node --watch src/index.js",
-        "test": "node --test test/*.test.js"
+        "test": "node --test test/*.test.js",
+        "etl": "node etl/index.js",
+        "etl:dry-run": "node etl/index.js --dry-run"
     },
     "repository": {
         "type": "git",

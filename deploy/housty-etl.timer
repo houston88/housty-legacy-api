@@ -1,0 +1,10 @@
+[Unit]
+Description=Run Housty API BlueSky ETL daily at 5:00 PM
+
+[Timer]
+OnCalendar=*-*-* 17:00:00
+Persistent=true
+Unit=housty-etl.service
+
+[Install]
+WantedBy=timers.target

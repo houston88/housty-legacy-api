@@ -12,13 +12,21 @@ router.get('/health', (req, res) => {
         const { count: happiestTimesCount } = db
             .prepare('SELECT COUNT(*) AS count FROM happiest_times')
             .get();
+        const statesBySource = db
+            .prepare('SELECT source, COUNT(*) AS count FROM happiest_states GROUP BY source')
+            .all();
+        const timesBySource = db
+            .prepare('SELECT source, COUNT(*) AS count FROM happiest_times GROUP BY source')
+            .all();
 
         res.json({
             status: 'ok',
             engine: 'node:sqlite (:memory:)',
             nodeVersion: process.version,
             happiestStatesCount,
-            happiestTimesCount
+            happiestTimesCount,
+            statesBySource: Object.fromEntries(statesBySource.map((r) => [r.source, r.count])),
+            timesBySource: Object.fromEntries(timesBySource.map((r) => [r.source, r.count]))
         });
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -47,8 +55,17 @@ const happiestStatesHandler = (req, res) => {
             return res.json(row ? [JSON.parse(row.doc_json)] : []);
         }
 
+        if (req.query.source) {
+            const states = db
+                .prepare(
+                    'SELECT _id, parseDate, fileName, source FROM happiest_states WHERE source = ? ORDER BY parseDate ASC'
+                )
+                .all(String(req.query.source));
+            return res.json(states);
+        }
+
         const states = db
-            .prepare('SELECT _id, parseDate, fileName FROM happiest_states ORDER BY parseDate ASC')
+            .prepare('SELECT _id, parseDate, fileName, source FROM happiest_states ORDER BY parseDate ASC')
             .all();
         res.json(states);
     } catch (err) {
@@ -62,8 +79,17 @@ router.get('/happiestStates/:id', happiestStatesHandler);
 router.get('/happiestTimes', (req, res) => {
     try {
         const db = getDb();
+        if (req.query.source) {
+            const times = db
+                .prepare(
+                    'SELECT _id, parseDate, score, source FROM happiest_times WHERE source = ? ORDER BY parseDate ASC'
+                )
+                .all(String(req.query.source));
+            return res.json(times);
+        }
+
         const times = db
-            .prepare('SELECT _id, parseDate, score FROM happiest_times ORDER BY parseDate ASC')
+            .prepare('SELECT _id, parseDate, score, source FROM happiest_times ORDER BY parseDate ASC')
             .all();
         res.json(times);
     } catch (err) {

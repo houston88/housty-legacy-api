@@ -26,18 +26,21 @@ test('GET /api/health returns database counts and Node 24 engine info', async ()
     assert.equal(res.status, 200);
     const body = await res.json();
     assert.equal(body.status, 'ok');
-    assert.equal(body.happiestStatesCount, 809);
-    assert.equal(body.happiestTimesCount, 816);
+    assert.ok(body.happiestStatesCount >= 809);
+    assert.ok(body.happiestTimesCount >= 816);
+    assert.equal(body.statesBySource.twitter, 809);
+    assert.equal(body.timesBySource.twitter, 816);
 });
 
-test('GET /api/happiestStates returns sorted summary records with _id, parseDate, fileName', async () => {
+test('GET /api/happiestStates returns sorted summary records with _id, parseDate, fileName, source', async () => {
     const res = await fetch(`${baseUrl}/api/happiestStates`);
     assert.equal(res.status, 200);
     const states = await res.json();
-    assert.equal(states.length, 809);
+    assert.ok(states.length >= 809);
     assert.ok(states[0]._id);
     assert.ok(states[0].parseDate);
     assert.ok(states[0].fileName);
+    assert.equal(states[0].source, 'twitter');
     // Should only select summary fields
     assert.equal(states[0].WA, undefined);
     // Verify ascending sort order
@@ -56,20 +59,22 @@ test('GET /api/happiestStates/:id returns full state details and hashtags in a 1
     assert.equal(detailArr.length, 1);
     const detail = detailArr[0];
     assert.equal(detail._id, latestId);
+    assert.ok(detail.source === 'twitter' || detail.source === 'bluesky');
     assert.ok(detail.CA);
     assert.equal(typeof detail.CA.score, 'number');
     assert.ok(Array.isArray(detail.hashtags));
     assert.ok(detail.hashtags.length > 0);
 });
 
-test('GET /api/happiestTimes returns sorted historical happiness scores', async () => {
+test('GET /api/happiestTimes returns sorted historical happiness scores with source', async () => {
     const res = await fetch(`${baseUrl}/api/happiestTimes`);
     assert.equal(res.status, 200);
     const times = await res.json();
-    assert.equal(times.length, 816);
+    assert.ok(times.length >= 816);
     assert.ok(times[0]._id);
     assert.ok(times[0].parseDate);
     assert.equal(typeof times[0].score, 'number');
+    assert.equal(times[0].source, 'twitter');
     assert.ok(times[0].parseDate <= times[times.length - 1].parseDate);
 });
 

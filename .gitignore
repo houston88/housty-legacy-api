@@ -1,4 +1,7 @@
 node_modules/
 .env
 *.log
+etl/*.jsonl
+data/bluesky_history.json
+*.tmp
 
