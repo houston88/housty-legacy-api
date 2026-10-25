@@ -1,0 +1,13 @@
+[Unit]
+Description=Housty API Daily BlueSky Jetstream ETL (10-minute collection)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=root
+WorkingDirectory=/opt/housty-api
+Environment=NODE_ENV=production
+ExecStart=/bin/bash /opt/housty-api/deploy/run-daily-etl.sh
+StandardOutput=journal
+StandardError=journal

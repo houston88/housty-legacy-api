@@ -32,7 +32,7 @@ jobs:
           host: ${{ secrets.DROPLET_HOST }}
           username: ${{ secrets.DROPLET_USERNAME }}
           key: ${{ secrets.DROPLET_SSH_KEY }}
-          source: "package.json,package-lock.json,src,data,deploy"
+          source: "package.json,package-lock.json,src,etl,data,deploy"
           target: "/opt/housty-api"
           tar: true
           timeout: 5m
@@ -46,9 +46,14 @@ jobs:
           script: |
             cd /opt/housty-api
             npm ci --omit=dev
+            chmod +x deploy/run-daily-etl.sh
             cp deploy/housty-api.service /etc/systemd/system/housty-api.service
+            cp deploy/housty-etl.service /etc/systemd/system/housty-etl.service
+            cp deploy/housty-etl.timer /etc/systemd/system/housty-etl.timer
             systemctl daemon-reload
             systemctl enable housty-api
             systemctl restart housty-api
+            systemctl enable --now housty-etl.timer
             systemctl status housty-api --no-pager
+            systemctl list-timers housty-etl.timer --no-pager
 
