@@ -31,7 +31,7 @@ jobs:
           host: ${{ secrets.DROPLET_HOST }}
           username: ${{ secrets.DROPLET_USERNAME }}
           key: ${{ secrets.DROPLET_SSH_KEY }}
-          source: "package.json,package-lock.json,src/**,data/**,deploy/**"
+          source: "package.json,package-lock.json,src,data,deploy"
           target: "/opt/housty-api"
           tar: true
           timeout: 5m
