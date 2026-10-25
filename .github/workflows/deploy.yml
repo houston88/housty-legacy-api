@@ -1,6 +1,7 @@
 name: Deploy Housty API to Digital Ocean
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - master
